@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AvailService — We answer when no one else will</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#060407; --soot:#0d0a0d; --bone:#d9d2c3; --ash:#8c857a; --mold:#2b2a26;
+  --blood:#b3121b; --dried:#6e0d13;
+  --display:'UnifrakturCook','Old English Text MT',Georgia,serif;
+  --body:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --type:'Special Elite','Courier New',monospace;
+  box-sizing:border-box; color-scheme:dark;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--bone);font-family:var(--body);font-size:1.25rem;line-height:1.6;overflow-x:hidden}
+body::before{ /* grain */
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.16;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+body::after{ /* vignette */
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:49;
+  background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.85) 100%);
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--blood);outline-offset:4px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 1.5rem}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:1.4rem 0;font-family:var(--type);font-size:.95rem;color:var(--ash)}
+nav .mark{font-family:var(--display);font-size:1.7rem;color:var(--bone);text-decoration:none;letter-spacing:.02em}
+nav ul{display:flex;gap:1.6rem;list-style:none;margin:0;padding:0}
+nav a{text-decoration:none;transition:color .2s}
+nav a:hover{color:var(--blood)}
+.live{display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--blood);margin-right:.5rem;animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* hero */
+.hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 0 4rem;position:relative}
+.eyes{display:flex;gap:2.2rem;margin-bottom:2.2rem;filter:drop-shadow(0 0 18px rgba(179,18,27,.35))}
+.eye{width:74px;height:40px;border-radius:50% / 100% 100% 0 0;border-radius:50%;background:radial-gradient(circle at 50% 50%,#e9e2cf 0%,#b9b09a 70%,#4a1013 100%);position:relative;overflow:hidden;animation:blink 7s infinite;transform-origin:center}
+.eye i{position:absolute;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle,#000 35%,var(--blood) 36%,#2a0407 100%);top:9px;left:26px;transition:transform .08s linear}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.05)}}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.8rem,9vw,6.4rem);line-height:.98;margin:0 0 1.4rem;letter-spacing:.01em;text-shadow:0 0 30px rgba(179,18,27,.35);animation:flick 2.6s .3s both}
+@keyframes flick{0%{opacity:0}6%{opacity:.9}8%{opacity:.1}12%{opacity:1}14%{opacity:.2}18%{opacity:.95}22%{opacity:.4}26%,100%{opacity:1}}
+.hero p{max-width:34rem;margin:0 auto 2.4rem;font-style:italic;color:var(--ash);font-size:1.4rem}
+.btn{display:inline-block;font-family:var(--type);font-size:1.05rem;color:var(--bone);background:transparent;border:1px solid var(--blood);padding:.95rem 2rem;text-decoration:none;cursor:pointer;transition:background .25s,box-shadow .25s,color .25s}
+.btn:hover{background:var(--dried);box-shadow:0 0 28px rgba(179,18,27,.5);color:#fff}
+.note{font-family:var(--type);font-size:.85rem;color:var(--mold);margin-top:1.4rem}
+
+section{padding:5rem 0;border-top:1px solid var(--mold)}
+h2{font-family:var(--display);font-size:clamp(2rem,5vw,3.2rem);font-weight:700;margin:0 0 .6rem;color:var(--bone)}
+.lede{color:var(--ash);font-style:italic;max-width:36rem;margin:0 0 2.8rem}
+
+/* services as a ledger */
+.ledger{list-style:none;margin:0;padding:0}
+.ledger li{display:grid;grid-template-columns:minmax(10rem,1fr) 2fr auto;gap:1.5rem;align-items:baseline;padding:1.5rem 0;border-bottom:1px dashed var(--mold);cursor:default;transition:padding-left .3s,background .3s}
+.ledger li:hover,.ledger li:focus-within{padding-left:1rem;background:linear-gradient(90deg,rgba(110,13,19,.28),transparent)}
+.ledger h3{font-family:var(--display);font-size:1.9rem;margin:0;font-weight:700}
+.ledger p{margin:0;color:var(--ash)}
+.red{background:var(--bone);color:transparent;padding:0 .35rem;transition:background .35s,color .35s;user-select:none;border-radius:1px}
+li:hover .red,li:focus-within .red,li.open .red{background:transparent;color:var(--blood);user-select:auto}
+.price{font-family:var(--type);font-size:.95rem;color:var(--ash);white-space:nowrap}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5rem;counter-reset:s;margin:0;padding:0;list-style:none}
+.steps li{counter-increment:s;position:relative;padding-top:3.6rem}
+.steps li::before{content:counter(s);position:absolute;top:0;left:0;font-family:var(--display);font-size:3.8rem;line-height:1;color:var(--dried)}
+.steps h3{font-family:var(--display);font-size:1.7rem;margin:0 0 .4rem}
+.steps p{margin:0;color:var(--ash)}
+
+/* rules */
+.rules{font-family:var(--type);font-size:1.05rem;color:var(--ash);columns:2;column-gap:3rem;padding-left:0;list-style:none;margin:0}
+.rules li{break-inside:avoid;margin-bottom:1.1rem;padding-left:1.4rem;position:relative}
+.rules li::before{content:"×";position:absolute;left:0;color:var(--blood)}
+
+/* form */
+form{max-width:36rem}
+label{display:block;font-family:var(--type);font-size:.95rem;color:var(--ash);margin:1.4rem 0 .4rem}
+input,select,textarea{width:100%;background:var(--soot);border:1px solid var(--mold);color:var(--bone);font-family:var(--body);font-size:1.2rem;padding:.8rem 1rem;border-radius:0;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blood);box-shadow:0 0 18px rgba(179,18,27,.35)}
+textarea{min-height:9rem;resize:vertical}
+input[readonly]{color:var(--blood);font-family:var(--type)}
+form .btn{margin-top:1.8rem}
+.reply{display:none;margin-top:2rem;padding:1.4rem;border-left:3px solid var(--blood);font-family:var(--type);color:var(--bone);background:rgba(110,13,19,.2);max-width:36rem}
+.reply.show{display:block;animation:flick 1.6s both}
+
+footer{padding:4rem 0 5rem;border-top:1px solid var(--mold);text-align:center;color:var(--ash);font-family:var(--type);font-size:.9rem}
+footer .big{font-family:var(--display);font-size:1.8rem;color:var(--dried);display:block;margin-bottom:.6rem}
+
+@media(max-width:760px){
+  nav ul{gap:1rem}nav .hide-s{display:none}
+  .ledger li{grid-template-columns:1fr;gap:.4rem}
+  .steps{grid-template-columns:1fr}
+  .rules{columns:1}
+  .eye{width:58px;height:32px}.eye i{width:18px;height:18px;top:7px;left:20px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav aria-label="Primary">
+    <a class="mark" href="#top">AvailService</a>
+    <ul>
+      <li class="hide-s"><a href="#services">Services</a></li>
+      <li class="hide-s"><a href="#process">Process</a></li>
+      <li class="hide-s"><a href="#rules">Rules</a></li>
+      <li><a href="#request"><span class="live" aria-hidden="true"></span>Request</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="eyes" aria-hidden="true"><div class="eye"><i></i></div><div class="eye"><i></i></div></div>
+    <h1>We answer when no one else will.</h1>
+    <p>Skilled hands for the work you would rather not sign your name to. No faces. No names. Only results.</p>
+    <a class="btn" href="#request">Make your request</a>
+    <div class="note">Open all hours. Replies arrive after dark.</div>
+  </header>
+</div>
+
+<section id="services">
+  <div class="wrap">
+    <h2>What we do</h2>
+    <p class="lede">Every job is handled by someone you will never meet. Hover over a service to read what is kept from view.</p>
+    <ul class="ledger">
+      <li tabindex="0"><h3>Ghostwriting</h3><p>Speeches, essays, letters and posts written in your voice. Your name goes on it. <span class="red">Ours never will.</span></p><span class="price">from $40</span></li>
+      <li tabindex="0"><h3>Phantom Design</h3><p>Logos, interfaces and decks delivered as finished files. <span class="red">No credit, no portfolio, no trace.</span></p><span class="price">from $90</span></li>
+      <li tabindex="0"><h3>Shadow Dev</h3><p>Websites, scripts and small apps built to spec and handed over with the source. <span class="red">We delete our copy.</span></p><span class="price">from $150</span></li>
+      <li tabindex="0"><h3>Silent Research</h3><p>Market scans, reading lists and fact checks, compiled into one clean report. <span class="red">Sources stay private.</span></p><span class="price">from $60</span></li>
+      <li tabindex="0"><h3>Night Watch Support</h3><p>Someone to answer your customers between midnight and dawn. <span class="red">They will never know it was us.</span></p><span class="price">from $25 / night</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="process">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="lede">Three steps. You can be done before anyone notices.</p>
+    <ol class="steps">
+      <li><h3>Knock</h3><p>Send your request below. You are given an alias. We never ask for your real name.</p></li>
+      <li><h3>Speak</h3><p>Tell us what you need and when. We reply with a fixed price and a deadline.</p></li>
+      <li><h3>Vanish</h3><p>We deliver the work, then erase the thread. You keep the result. We keep nothing.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="wrap">
+    <h2>The rules</h2>
+    <p class="lede">We are mysterious, not lawless. Break these and the door stays shut.</p>
+    <ul class="rules">
+      <li>We do not take work that harms, harasses or deceives people.</li>
+      <li>We do not forge documents or impersonate real individuals.</li>
+      <li>We do not share your request with anyone, ever.</li>
+      <li>We do not negotiate price after the quote is accepted.</li>
+      <li>We do not answer questions about who we are.</li>
+      <li>We do not leave a job unfinished.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="request">
+  <div class="wrap">
+    <h2>Make your request</h2>
+    <p class="lede">No email needed. Remember your alias, because it is the only way we will know you.</p>
+    <form id="f" novalidate>
+      <label for="alias">Your alias</label>
+      <input id="alias" readonly>
+      <label for="svc">Service</label>
+      <select id="svc">
+        <option>Ghostwriting</option><option>Phantom Design</option><option>Shadow Dev</option><option>Silent Research</option><option>Night Watch Support</option>
+      </select>
+      <label for="msg">What do you need?</label>
+      <textarea id="msg" placeholder="Describe the work and when you need it."></textarea>
+      <button class="btn" type="submit">Send into the dark</button>
+    </form>
+    <div class="reply" id="reply" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<footer>
+  <span class="big">We were never here.</span>
+  AvailService keeps no records. This page is a design concept; no requests are stored or sent.
+</footer>
+
+<script>
+(function(){
+  // alias
+  var words=["Hollow","Wisp","Cinder","Moth","Static","Marrow","Veil","Ash","Crow","Lull"];
+  var a=words[Math.floor(Math.random()*words.length)]+"_"+Math.floor(1000+Math.random()*9000);
+  var alias=document.getElementById('alias'); alias.value=a;
+
+  // eyes follow cursor / touch
+  var pupils=[].slice.call(document.querySelectorAll('.eye i'));
+  function look(x,y){
+    pupils.forEach(function(p){
+      var r=p.parentNode.getBoundingClientRect();
+      var cx=r.left+r.width/2, cy=r.top+r.height/2;
+      var dx=x-cx, dy=y-cy, d=Math.hypot(dx,dy)||1;
+      var m=Math.min(d/6,14);
+      p.style.transform='translate('+(dx/d*m)+'px,'+(dy/d*Math.min(m,7))+'px)';
+    });
+  }
+  window.addEventListener('mousemove',function(e){look(e.clientX,e.clientY)});
+  window.addEventListener('touchmove',function(e){var t=e.touches[0];look(t.clientX,t.clientY)},{passive:true});
+
+  // tap to reveal on touch devices
+  document.querySelectorAll('.ledger li').forEach(function(li){
+    li.addEventListener('click',function(){li.classList.toggle('open')});
+  });
+
+  // form
+  var lines=[
+    "Received, {a}. We have read it twice.",
+    "Noted, {a}. Someone is already looking at it.",
+    "Heard, {a}. Expect our reply after dark."
+  ];
+  document.getElementById('f').addEventListener('submit',function(e){
+    e.preventDefault();
+    var m=document.getElementById('msg'), r=document.getElementById('reply');
+    if(!m.value.trim()){
+      r.textContent="Empty request. Tell us what you need and send it again.";
+    }else{
+      var s=document.getElementById('svc').value;
+      r.textContent=lines[Math.floor(Math.random()*lines.length)].replace('{a}',a)+" Service: "+s+". Keep your alias.";
+      m.value="";
+    }
+    r.classList.remove('show'); void r.offsetWidth; r.classList.add('show');
+  });
+})();
+</script>
+</body>
+</html>

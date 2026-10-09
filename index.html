@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AvailService — Quiet work. Clean exit.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#08090a; --panel:#111314; --line:#26292b; --chalk:#f1f1ee; --steel:#8b9094; --red:#d4162b; --deep:#7d0b18;
+  --head:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+  --body:'Barlow','Helvetica Neue',Arial,sans-serif;
+  color-scheme:dark; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--chalk);font-family:var(--body);font-size:1.05rem;line-height:1.55;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.5rem}
+h1,h2,h3{font-family:var(--head);text-transform:uppercase;margin:0;font-weight:700;letter-spacing:.02em;line-height:.95}
+
+/* nav */
+nav{position:relative;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:1.3rem 0;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:.9rem;text-decoration:none;font-family:var(--head);font-weight:700;font-size:1.5rem;letter-spacing:.14em;text-transform:uppercase}
+.barcode{display:block;height:22px;width:64px}
+nav ul{display:flex;gap:1.8rem;list-style:none;margin:0;padding:0;font-family:var(--head);font-weight:500;font-size:1.05rem;letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
+nav a{text-decoration:none;transition:color .2s}
+nav a:hover{color:var(--red)}
+
+/* hero */
+.hero{position:relative;min-height:calc(100vh - 70px);overflow:hidden;border-bottom:1px solid var(--line);cursor:crosshair;
+  background:
+   linear-gradient(var(--line) 1px,transparent 1px) 0 0/80px 80px,
+   linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/80px 80px,
+   radial-gradient(ellipse at 50% 40%,#15181a 0%,var(--ink) 70%);
+  background-blend-mode:normal}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--sx,50%) var(--sy,50%),transparent 0,transparent 140px,rgba(8,9,10,.72) 420px)}
+.hero-copy{position:relative;z-index:3;max-width:1080px;margin:0 auto;padding:7vh 1.5rem 4rem;pointer-events:none}
+.hero-copy > *{pointer-events:auto}
+.hero h1{font-size:clamp(3.4rem,13vw,10rem);margin-bottom:1.6rem}
+.hero h1 span{display:block}
+.hero h1 .r{color:var(--red)}
+.hero p{max-width:30rem;color:var(--steel);font-size:1.2rem;margin:0 0 2.2rem}
+.btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn{display:inline-block;font-family:var(--head);font-weight:600;font-size:1.2rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--chalk);background:transparent;border:1px solid var(--chalk);padding:.85rem 1.8rem;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.btn.main{background:var(--red);border-color:var(--red)}
+.btn:hover{background:var(--chalk);color:var(--ink);border-color:var(--chalk)}
+.btn.main:hover{background:var(--chalk);color:var(--red)}
+
+/* scope */
+.vline,.hline{position:absolute;background:rgba(241,241,238,.22);pointer-events:none;z-index:2}
+.vline{width:1px;top:0;bottom:0;left:0}.hline{height:1px;left:0;right:0;top:0}
+.ret{position:absolute;z-index:4;width:0;height:0;pointer-events:none;left:0;top:0}
+.ret svg{position:absolute;left:-110px;top:-110px;width:220px;height:220px;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.ret .ring{fill:none;stroke:var(--chalk);stroke-width:1;transition:stroke .2s}
+.ret .dot{fill:var(--red)}
+.ret .tick{stroke:var(--chalk);stroke-width:2;transition:stroke .2s}
+.ret.lock svg{transform:scale(.45)}
+.ret.lock .ring,.ret.lock .tick{stroke:var(--red)}
+.read{position:absolute;left:122px;top:-8px;font-family:var(--head);font-weight:500;font-size:.95rem;letter-spacing:.16em;color:var(--chalk);white-space:nowrap;text-transform:uppercase}
+.ret.lock .read{color:var(--red)}
+.tag{position:absolute;z-index:3;font-family:var(--head);font-weight:500;font-size:1rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red);opacity:.08;transition:opacity .15s;pointer-events:none;border-left:2px solid var(--red);padding-left:.6rem}
+
+/* sections */
+section{padding:5.5rem 0;border-bottom:1px solid var(--line)}
+h2{font-size:clamp(2.4rem,6vw,4rem);margin-bottom:.8rem}
+.lede{color:var(--steel);max-width:34rem;margin:0 0 3rem;font-size:1.15rem}
+
+/* contract files */
+.files{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.files li{position:relative;display:grid;grid-template-columns:5.5rem 1.2fr 2fr auto;gap:1.2rem;align-items:start;padding:1.6rem 1rem 1.6rem 1.4rem;border-bottom:1px solid var(--line);transition:background .25s}
+.files li::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:background .25s}
+.files li:hover,.files li:focus-within,.files li.open{background:var(--panel)}
+.files li:hover::before,.files li:focus-within::before,.files li.open::before{background:var(--red)}
+.fid{font-family:var(--head);font-weight:500;color:var(--steel);letter-spacing:.14em;font-size:1.05rem}
+.files h3{font-size:2.1rem}
+.obj{margin:0;color:var(--chalk)}
+.intel{display:block;margin-top:.5rem;color:var(--steel);max-height:0;opacity:0;overflow:hidden;transition:max-height .35s ease,opacity .3s}
+li:hover .intel,li:focus-within .intel,li.open .intel{max-height:6rem;opacity:1}
+.fee{font-family:var(--head);font-weight:600;font-size:1.3rem;letter-spacing:.08em;color:var(--red);white-space:nowrap;text-transform:uppercase}
+
+/* phases */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:0;list-style:none;margin:0;padding:0;counter-reset:p;border-top:1px solid var(--line)}
+.phases li{counter-increment:p;padding:2rem 2rem 2rem 0;border-right:1px solid var(--line);margin-right:2rem}
+.phases li:last-child{border-right:0;margin-right:0}
+.phases li::before{content:"Phase " counter(p);display:block;font-family:var(--head);font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:.8rem}
+.phases h3{font-size:2.4rem;margin-bottom:.6rem}
+.phases p{margin:0;color:var(--steel)}
+
+/* rating screen */
+.rating{background:var(--panel);border:1px solid var(--line);padding:2.4rem;max-width:44rem}
+.rating h3{font-size:clamp(2rem,5vw,3rem);margin-bottom:.4rem}
+.stars{color:var(--red);font-size:1.6rem;letter-spacing:.3rem;margin-bottom:1.6rem}
+.rating dl{margin:0}
+.rating .row{display:flex;align-items:baseline;gap:.8rem;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.rating dt{font-family:var(--head);font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
+.rating .lead{flex:1;border-bottom:1px dotted var(--line);transform:translateY(-4px)}
+.rating dd{margin:0;font-family:var(--head);font-weight:600;font-size:1.2rem;letter-spacing:.08em;text-transform:uppercase}
+
+/* terms */
+.terms{list-style:none;margin:0;padding:0;columns:2;column-gap:3rem;color:var(--steel)}
+.terms li{break-inside:avoid;padding:.9rem 0 .9rem 1.6rem;border-bottom:1px solid var(--line);position:relative}
+.terms li::before{content:"";position:absolute;left:0;top:1.35rem;width:.7rem;height:2px;background:var(--red)}
+
+/* form */
+form{max-width:38rem}
+label{display:block;font-family:var(--head);font-weight:500;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);margin:1.5rem 0 .4rem}
+input,select,textarea{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--chalk);font:inherit;padding:.8rem 1rem;border-radius:0;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--red)}
+input[readonly]{font-family:var(--head);font-weight:600;letter-spacing:.14em;font-size:1.3rem;color:var(--red);text-transform:uppercase}
+textarea{min-height:8rem;resize:vertical}
+form .btn{margin-top:1.8rem}
+.brief{display:none;margin-top:2rem;max-width:38rem;border:1px solid var(--red);padding:1.6rem;background:rgba(212,22,43,.07)}
+.brief.show{display:block}
+.brief h3{font-size:2rem;color:var(--red);margin-bottom:.6rem}
+.brief p{margin:.2rem 0;color:var(--chalk)}
+
+footer{padding:3rem 0 4rem}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap;color:var(--steel);font-size:.95rem}
+footer .barcode{width:120px;height:30px}
+
+@media(max-width:800px){
+  nav ul{gap:1rem}nav .hs{display:none}
+  .files li{grid-template-columns:1fr;gap:.4rem}
+  .phases{grid-template-columns:1fr}
+  .phases li{border-right:0;border-bottom:1px solid var(--line);margin:0;padding-right:0}
+  .terms{columns:1}
+  .tag{display:none}
+  .ret svg{transform:scale(.7)}.ret.lock svg{transform:scale(.35)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav aria-label="Primary">
+    <a class="brand" href="#top"><svg class="barcode" data-bars aria-hidden="true"></svg>AvailService</a>
+    <ul>
+      <li class="hs"><a href="#contracts">Contracts</a></li>
+      <li class="hs"><a href="#phases">Method</a></li>
+      <li class="hs"><a href="#terms">Terms</a></li>
+      <li><a href="#accept">Accept</a></li>
+    </ul>
+  </nav>
+</div>
+
+<header class="hero" id="top">
+  <div class="vline" id="vl"></div><div class="hline" id="hl"></div>
+  <div class="tag" style="left:8%;top:22%">Objective: deliver quietly</div>
+  <div class="tag" style="right:7%;top:30%">Witnesses: none</div>
+  <div class="tag" style="left:48%;top:12%">Entry: unseen</div>
+  <div class="tag" style="right:12%;bottom:18%">Exit: clean</div>
+  <div class="tag" style="left:6%;bottom:22%">Evidence: none</div>
+  <div class="tag" style="left:55%;bottom:10%">Deadline: respected</div>
+
+  <div class="ret" id="ret" aria-hidden="true">
+    <svg viewBox="0 0 220 220">
+      <circle class="ring" cx="110" cy="110" r="100"/>
+      <circle class="ring" cx="110" cy="110" r="52"/>
+      <circle class="dot" cx="110" cy="110" r="3.5"/>
+      <path class="tick" d="M110 2v26M110 192v26M2 110h26M192 110h26"/>
+    </svg>
+    <span class="read" id="read">X 000 Y 000</span>
+  </div>
+
+  <div class="hero-copy">
+    <h1><span>Quiet work.</span><span class="r">Clean exit.</span></h1>
+    <p>Professional operatives for the jobs you cannot be seen doing. You brief us once. We deliver and disappear.</p>
+    <div class="btns">
+      <a class="btn main" href="#accept" id="cta">Accept a contract</a>
+      <a class="btn" href="#contracts">View contracts</a>
+    </div>
+  </div>
+</header>
+
+<section id="contracts">
+  <div class="wrap">
+    <h2>Open contracts</h2>
+    <p class="lede">Five lines of work. Select a file to read the intel.</p>
+    <ul class="files">
+      <li tabindex="0"><span class="fid">File C-01</span><h3>Ghostwriting</h3><p class="obj">Your words, no signature.<span class="intel">Voice-matched drafts, one round of revisions, working files destroyed after delivery.</span></p><span class="fee">From $40</span></li>
+      <li tabindex="0"><span class="fid">File C-02</span><h3>Phantom Design</h3><p class="obj">Brand and interface work, delivered clean.<span class="intel">Final files only. No portfolio credit and no mention of us anywhere.</span></p><span class="fee">From $90</span></li>
+      <li tabindex="0"><span class="fid">File C-03</span><h3>Shadow Dev</h3><p class="obj">Sites and tools built to spec.<span class="intel">Full source handed over. Our copy is purged when you confirm receipt.</span></p><span class="fee">From $150</span></li>
+      <li tabindex="0"><span class="fid">File C-04</span><h3>Silent Research</h3><p class="obj">Intel gathered from public sources.<span class="intel">A one-page brief with a source list. Nothing is contacted on your behalf.</span></p><span class="fee">From $60</span></li>
+      <li tabindex="0"><span class="fid">File C-05</span><h3>Night Watch</h3><p class="obj">Support coverage, midnight to dawn.<span class="intel">Replies in your brand voice. Your customers never learn it was us.</span></p><span class="fee">From $25 / night</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="phases">
+  <div class="wrap">
+    <h2>Method</h2>
+    <p class="lede">Every contract follows the same three phases.</p>
+    <ol class="phases">
+      <li><h3>Briefing</h3><p>Send your objective and deadline. You get a codename. We never ask for your name.</p></li>
+      <li><h3>Infiltration</h3><p>Your operative works in the background and sends one status note at the halfway mark.</p></li>
+      <li><h3>Exfiltration</h3><p>The work is delivered, the thread is erased and the file is closed.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="rating">
+  <div class="wrap">
+    <h2>Mission rating</h2>
+    <p class="lede">The standard every contract is held to. Figures shown are placeholders for your own numbers.</p>
+    <div class="rating">
+      <h3>Contract complete</h3>
+      <div class="stars" aria-label="Five stars">★★★★★</div>
+      <dl>
+        <div class="row"><dt>Objectives met</dt><span class="lead"></span><dd>All</dd></div>
+        <div class="row"><dt>Traces left</dt><span class="lead"></span><dd>0</dd></div>
+        <div class="row"><dt>Witnesses</dt><span class="lead"></span><dd>0</dd></div>
+        <div class="row"><dt>Revisions included</dt><span class="lead"></span><dd>1</dd></div>
+        <div class="row"><dt>Median delivery</dt><span class="lead"></span><dd>48 hrs</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="terms">
+  <div class="wrap">
+    <h2>Terms of engagement</h2>
+    <p class="lede">We keep a low profile, not a low standard. Break these and the briefcase stays shut.</p>
+    <ul class="terms">
+      <li>We refuse work that harms, harasses or deceives people.</li>
+      <li>We never forge documents or impersonate real people.</li>
+      <li>Your brief is never shared with anyone.</li>
+      <li>The quote is final once you accept it.</li>
+      <li>We do not discuss who our operatives are.</li>
+      <li>A contract is not closed until it is delivered.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="accept">
+  <div class="wrap">
+    <h2>Accept a contract</h2>
+    <p class="lede">No email needed. Your codename is the only way we will know you, so keep it.</p>
+    <form id="f" novalidate>
+      <label for="code">Your codename</label>
+      <input id="code" readonly>
+      <label for="svc">Contract</label>
+      <select id="svc"><option>Ghostwriting</option><option>Phantom Design</option><option>Shadow Dev</option><option>Silent Research</option><option>Night Watch</option></select>
+      <label for="dl">Deadline</label>
+      <select id="dl"><option>24 hours</option><option selected>48 hours</option><option>One week</option></select>
+      <label for="obj">Objective</label>
+      <textarea id="obj" placeholder="State the objective and anything we must avoid."></textarea>
+      <button class="btn main" type="submit">Send briefing</button>
+    </form>
+    <div class="brief" id="brief" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <svg class="barcode" data-bars aria-hidden="true"></svg>
+    <span>Nobody saw us. This page is a design concept: no briefings are stored or sent.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  // barcodes
+  document.querySelectorAll('[data-bars]').forEach(function(s,i){
+    var x=0,h='',seed=7+i*13;
+    s.setAttribute('viewBox','0 0 120 30'); s.setAttribute('preserveAspectRatio','none');
+    while(x<118){seed=(seed*9301+49297)%233280;var w=1+Math.floor(seed/233280*3);h+='<rect x="'+x+'" y="0" width="'+w+'" height="30" fill="#f1f1ee"/>';x+=w+1+Math.floor((seed%3));}
+    s.innerHTML=h;
+  });
+
+  // codename
+  var names=["Obsidian","Cobalt","Raven","Slate","Onyx","Cipher","Vesper","Argent"];
+  var code=names[Math.floor(Math.random()*names.length)]+"-"+("0"+Math.floor(Math.random()*90+10)).slice(-2);
+  document.getElementById('code').value=code;
+
+  // scope
+  var hero=document.getElementById('top'),ret=document.getElementById('ret'),vl=document.getElementById('vl'),hl=document.getElementById('hl'),rd=document.getElementById('read'),cta=document.getElementById('cta');
+  var tags=[].slice.call(hero.querySelectorAll('.tag'));
+  var W,H,tx,ty,x,y,moved=false,locked=false,t0=performance.now();
+  function size(){var r=hero.getBoundingClientRect();W=r.width;H=r.height;if(!moved){tx=W*.7;ty=H*.45}}
+  size();x=tx;y=ty;addEventListener('resize',size);
+  function aim(cx,cy){var r=hero.getBoundingClientRect();tx=cx-r.left;ty=cy-r.top;moved=true}
+  hero.addEventListener('mousemove',function(e){if(!locked)aim(e.clientX,e.clientY)});
+  hero.addEventListener('touchmove',function(e){var t=e.touches[0];if(!locked)aim(t.clientX,t.clientY)},{passive:true});
+  cta.addEventListener('mouseenter',lock);cta.addEventListener('focus',lock);
+  cta.addEventListener('mouseleave',unlock);cta.addEventListener('blur',unlock);
+  function lock(){var r=cta.getBoundingClientRect(),h=hero.getBoundingClientRect();tx=r.left-h.left+r.width/2;ty=r.top-h.top+r.height/2;locked=true;ret.classList.add('lock')}
+  function unlock(){locked=false;ret.classList.remove('lock')}
+  function frame(now){
+    if(!moved&&!locked&&!reduce){tx=W*.7+Math.sin((now-t0)/1400)*W*.12;ty=H*.45+Math.cos((now-t0)/1900)*H*.1}
+    x+=(tx-x)*(reduce?1:.14);y+=(ty-y)*(reduce?1:.14);
+    ret.style.transform='translate('+x+'px,'+y+'px)';
+    vl.style.transform='translateX('+x+'px)';hl.style.transform='translateY('+y+'px)';
+    hero.style.setProperty('--sx',x+'px');hero.style.setProperty('--sy',y+'px');
+    rd.textContent=locked?'Target locked':'X '+('00'+Math.round(x)).slice(-3)+'  Y '+('00'+Math.round(y)).slice(-3);
+    tags.forEach(function(g){
+      var cx=g.offsetLeft+g.offsetWidth/2,cy=g.offsetTop+g.offsetHeight/2,d=Math.hypot(cx-x,cy-y);
+      g.style.opacity=d<200?1:d<320?.45:.08;
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // tap to open files on touch
+  document.querySelectorAll('.files li').forEach(function(li){li.addEventListener('click',function(){li.classList.toggle('open')})});
+
+  // form
+  document.getElementById('f').addEventListener('submit',function(e){
+    e.preventDefault();
+    var o=document.getElementById('obj'),b=document.getElementById('brief');
+    if(!o.value.trim()){
+      b.innerHTML='<h3>Briefing incomplete</h3><p>State the objective, then send the briefing again.</p>';
+    }else{
+      b.innerHTML='<h3>Contract accepted</h3><p>Codename: <strong>'+code+'</strong></p><p>Contract: '+document.getElementById('svc').value+'</p><p>Deadline: '+document.getElementById('dl').value+'</p><p>Your operative has been assigned. Keep your codename.</p>';
+      o.value='';
+    }
+    b.classList.add('show');
+  });
+})();
+</script>
+</body>
+</html>
